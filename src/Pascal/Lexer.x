@@ -42,10 +42,11 @@ tokens :-
   "(*".*"*)"                            ; -- skips parenthesis comments
   $digit+                               { tok_read     TokenFloat }
   true|false                            { tok_read     TokenBool }
-  [\+]|[\-]|[\*]|[\/]|[=]               { tok_read     TokenOp }
-  [\(]|[\)]|[\.]|[\;]                   { tok_string   TokenK }
+  [\+]|[\-]|[\*]|[\/]                   { tok_read     TokenOp }
+  [\>]|[\>\=]|[\<]|[\<\=]|[\=]|[\<\>]   { tok_read     TokenOp }
+  [\(]|[\)]|[\.]|[\,]|[\:]|[\;]|[:=]    { tok_string   TokenK }
   program|begin|end                     { tok_string   TokenK }
-  [:=]                                  { tok_read     TokenOp }
+  var|boolean|real                      { tok_string   TokenK }
   $alpha [$alpha $digit \_ \']*         { tok_string   TokenID }
 
 {
