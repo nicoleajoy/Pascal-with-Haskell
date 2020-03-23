@@ -1,6 +1,6 @@
 {
 
-{-# LANGUAGE OverloadedStrings                 #-}
+{-# LANGUAGE OverloadedStrings                  #-}
 {-# LANGUAGE NoMonomorphismRestriction          #-}
 {-# LANGUAGE CPP                                #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds          #-}

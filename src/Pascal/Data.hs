@@ -4,6 +4,7 @@
 module Pascal.Data
     (
         VarDecBlock(..),
+        VarDec_List(..),
         Type(..),
         Exp(..),
         BoolExp(..),
@@ -12,7 +13,10 @@ module Pascal.Data
     ) where
 
 data VarDecBlock = 
-    VarDecBlock [String] Type
+    VarDecBlock [VarDec_List]
+
+data VarDec_List =
+    VarDec_List [String] Type
 
 data Type = BOOLEAN | REAL
 

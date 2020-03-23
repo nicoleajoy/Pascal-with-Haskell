@@ -49,17 +49,25 @@ import Pascal.Lexer
 
 -- Entry point
 Program :: {Program}
-    : ProgramHead VarDecBlock Block { $3 }
+    : ProgramHeader VarDecBlock Block { $3 }
 
-ProgramHead :: {String}
+ProgramHeader :: {String}
     : 'program' ID ';' { $2 }
 
-VarDecBlock :: {VarDecBlock}
-    : 'var' ID_List ':' Type ';' { VarDecBlock $2 $4 }
+VarDecBlock :: {[VarDec_List]}
+    : { [] } -- nothing; empty list
+    | 'var' VarDec_Lists { $2 }
+
+VarDec_Lists :: {[VarDec_List]}
+    : VarDec_List { [$1] }
+    | VarDec_List VarDec_Lists { $1:$2 }
+
+VarDec_List :: {VarDec_List}
+    : ID_List ':' Type ';' { VarDec_List $1 $3 }
 
 ID_List :: {[String]}
     : ID { [] }
-    | ID ',' ID_List { $1 : $3 }
+    | ID ',' ID_List { $1:$3 }
 
 Block :: {[Statement]}
     : 'begin' Statements 'end' '.' { $2 }
