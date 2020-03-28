@@ -46,7 +46,12 @@ tokens :-
   [\>]|[\>\=]|[\<]|[\<\=]|[\=]|[\<\>]   { tok_read     TokenOp }
   [\(]|[\)]|[\.]|[\,]|[\:]|[\;]|[:=]    { tok_string   TokenK }
   program|begin|end                     { tok_string   TokenK }
+  procedure|function                    { tok_string   TokenK }
   var|boolean|real                      { tok_string   TokenK }
+  sin|cos|exp|sqrt|ln                   { tok_string   TokenK }
+  writeln|readln                        { tok_string   TokenK }
+  if|then|else                          { tok_string   TokenK }
+  while|for                             { tok_string   TokenK }
   $alpha [$alpha $digit \_ \']*         { tok_string   TokenID }
 
 {

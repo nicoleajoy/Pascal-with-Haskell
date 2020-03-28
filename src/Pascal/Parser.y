@@ -39,6 +39,20 @@ import Pascal.Lexer
         'and'           { Token _ (TokenK "and") }
         'or'            { Token _ (TokenK "or") }
         'not'           { Token _ (TokenK "not") }
+        'sin'           { Token _ (TokenK "sin") }
+        'cos'           { Token _ (TokenK "cos") }
+        'exp'           { Token _ (TokenK "exp") }
+        'ln'            { Token _ (TokenK "ln") }
+        'sqrt'          { Token _ (TokenK "sqrt") }
+        'writeln'       { Token _ (TokenK "writeln") }
+        'readln'        { Token _ (TokenK "readln") }
+        'for'           { Token _ (TokenK "for") }
+        'if'            { Token _ (TokenK "if") }
+        'then'          { Token _ (TokenK "then") }
+        'else'          { Token _ (TokenK "else") }
+        'while'         { Token _ (TokenK "while") }
+        'function'      { Token _ (TokenK "function") }
+        'procedure'     { Token _ (TokenK "procedure") }
 
 -- associativity of operators in reverse precedence order
 %nonassoc '>' '>=' '<' '<=' '==' '!='
@@ -82,9 +96,16 @@ Exp :: {Exp}
     | '-' Exp { Op1 "-" $2 }
     | Exp '+' Exp { Op2 "+" $1 $3 }
     | Exp '*' Exp { Op2 "*" $1 $3 }
+    | Exp '/' Exp { Op2 "/" $1 $3 }
+    | 'sin' '(' Exp ')' {Op3 "sin" $3}
+    | 'cos' '(' Exp ')' {Op3 "cos"$3}
+    | 'exp' '(' Exp ')' {Op3 "exp" $3}
+    | 'ln' '(' Exp ')' {Op3 "ln" $3}
+    | 'sqrt' '(' Exp ')' {Op3 "sqrt" $3}
     | '(' Exp ')' { $2 } -- ignore brackets
     | float { Real $1 }
     | ID { Var_R $1 }
+  
 
 BoolExp :: {BoolExp}
     : 'true' { True_C }
@@ -97,8 +118,13 @@ BoolExp :: {BoolExp}
 Statements :: {[Statement]}
     : { [] } -- nothing; make empty list
     | Statement Statements { $1:$2 } -- add statement to list
+  
 
 Statement :: {Statement}
     : ID ':=' Exp { Assign $1 $3 }
+    | 'if' BoolExp 'then' Statement { If "if" $2 "then" $4 }
+    | 'function' ID VarDec_List 'begin' Statement 'end' ';' {Fun "function" $2 [$3] "begin" $5 "end"}
+    | 'procedure' ID VarDec_List 'begin' Statement 'end' ';' {Proc "procedure" $2 [$3] "begin" $5 "end"}
+    
 
 {}
