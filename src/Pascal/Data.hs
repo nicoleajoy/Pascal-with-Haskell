@@ -4,19 +4,20 @@
 module Pascal.Data
     (
         VarDecBlock(..),
-        VarDec_List(..),
+        VarDec(..),
         Type(..),
         Exp(..),
         BoolExp(..),
         Statement(..),
+        CaseLabel(..),
         Program
     ) where
 
 data VarDecBlock = 
-    VarDecBlock [VarDec_List]
+    VarDecBlock [VarDec]
 
-data VarDec_List =
-    VarDec_List [String] Type
+data VarDec =
+    VarDec [String] Type
 
 data Type = BOOLEAN | REAL
 
@@ -33,30 +34,36 @@ data Exp =
     | Real Float
     -- variable: e.g. Var "x"
     | Var_R String
-   
 
 -- Data-structure for boolean expressions
 data BoolExp = 
-    -- binary operator on boolean expressions
+    -- operator on boolean expressions
     OpB String BoolExp BoolExp
     -- negation, the only unary operator
     | Not BoolExp
-    -- comparison operator: Comp name expression expression
-    | Comp String Exp Exp
+    -- operator on real expressions
+    | OpR String Exp Exp
     -- true and false constants
-    | True_C | False_C
+    | True_C 
+    | False_C
     -- variable: e.g. Var "x"
     | Var_B String
 
 -- Data-structure for statements
 data Statement = 
-    -- TODO: add other statements
     -- Variable assignment
-    Assign String Exp
-    -- If statement
-    | If String BoolExp String Statement
-    | Fun String String [VarDec_List] String Statement String
-    | Proc String String [VarDec_List] String Statement String
+    AssignR String Exp
+    | AssignB String BoolExp
+    | IfThen BoolExp Statement
+    | IfThenElse BoolExp Statement Statement
+    | WhileDo BoolExp [Statement]
+    | ForDo String Float Float [Statement]
+    | Case Exp [CaseLabel]
+    | Func String String [VarDec] String Statement String
+    | Proc String String [VarDec] String Statement String
+
+data CaseLabel = 
+    CaseLabel Exp Statement
 
 -- Data-structure for whole program
 -- TODO: add declarations and other useful stuff

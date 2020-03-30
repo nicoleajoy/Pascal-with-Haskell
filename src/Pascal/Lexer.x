@@ -40,18 +40,19 @@ tokens :-
   "//".*                                ; -- skip one line comments
   "{".*"}"                              ; -- skips bracket comments
   "(*".*"*)"                            ; -- skips parenthesis comments
-  $digit+                               { tok_read     TokenFloat }
+  $digit+ | $digit+ "." $digit+         { tok_read     TokenFloat }
   true|false                            { tok_read     TokenBool }
-  [\+]|[\-]|[\*]|[\/]                   { tok_read     TokenOp }
-  [\>]|[\>\=]|[\<]|[\<\=]|[\=]|[\<\>]   { tok_read     TokenOp }
-  [\(]|[\)]|[\.]|[\,]|[\:]|[\;]|[:=]    { tok_string   TokenK }
+  [\+]|[\-]|[\*]|[\/]|"mod"             { tok_string   TokenOp }
+  [\>]|">="|[\<]|"<="|[\=]|"<>"         { tok_string   TokenOp }
+  [\(]|[\)]|[\.]|[\,]|[\:]|[\;]|":="    { tok_string   TokenK }
   program|begin|end                     { tok_string   TokenK }
   procedure|function                    { tok_string   TokenK }
   var|boolean|real                      { tok_string   TokenK }
   sin|cos|exp|sqrt|ln                   { tok_string   TokenK }
+  and|or|not                            { tok_string   TokenK }
   writeln|readln                        { tok_string   TokenK }
   if|then|else                          { tok_string   TokenK }
-  while|for                             { tok_string   TokenK }
+  while|do|for|to|case|of               { tok_string   TokenK }
   $alpha [$alpha $digit \_ \']*         { tok_string   TokenID }
 
 {
@@ -72,11 +73,11 @@ tokenToPosN (Token p _) = p
 
 -- TODO: Add your own token types here
 data TokenClass
- = TokenOp      String
- | TokenK       String
- | TokenFloat   Float
- | TokenBool    Bool
- | TokenID      String
+ = TokenOp              String
+ | TokenK               String
+ | TokenFloat           Float
+ | TokenBool            Bool
+ | TokenID              String
  | TokenEOF
  deriving (Eq, Show)
 
