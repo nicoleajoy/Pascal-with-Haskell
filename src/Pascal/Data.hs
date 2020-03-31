@@ -18,6 +18,9 @@ data VarDecBlock =
 
 data VarDec =
     VarDec [String] Type
+    | VarDef_Float String Float
+    | VarDef_True String
+    | VarDef_False String
 
 data Type = BOOLEAN | REAL
 

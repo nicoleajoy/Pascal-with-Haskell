@@ -66,9 +66,9 @@ import Pascal.Lexer
 
 -- associativity of operators in reverse precedence order
 %nonassoc '>' '>=' '<' '<=' '=' '<>'
+%nonassoc ':='
 %left '+' '-'
 %left '*' '/'
-%nonassoc ':='
 %%
 
 -- Entry point
@@ -83,15 +83,18 @@ VarDecBlock :: {[VarDec]}
     | 'var' VarDecs { $2 }
 
 VarDecs :: {[VarDec]}
-    : VarDec { [$1] }
-    | VarDec VarDecs { $1:$2 }
+    : VarDec ';' { [$1] }
+    | VarDec ';' VarDecs { $1:$3 }
 
 VarDec :: {VarDec}
-    : ID_List ':' Type ';' { VarDec $1 $3 }
+    : ID_List ':' Type { VarDec $1 $3 }
+    | ID ':' 'real' '=' float { VarDef_Float $1 $5 }
+    | ID ':' 'boolean' '=' 'true' { VarDef_True $1 }
+    | ID ':' 'boolean' '=' 'false' { VarDef_False $1 }
 
 ID_List :: {[String]}
-    : ID { [] }
-    | ID ',' ID_List { $1:$3 }
+    : ID { [$1] }
+    | ID ',' ID_List { $1:$3 } 
 
 Block :: {[Statement]}
     : 'begin' Statements 'end' '.' { $2 }
@@ -103,9 +106,9 @@ Type :: {Type}
 -- Expressions
 Exp :: {Exp}
     : '+' Exp { $2 } -- ignore Plus
-    | '-' Exp { Op1 "-" $2 }
+    | '-' Exp { Op1 "-" $2 } 
     | Exp '+' Exp { Op2 "+" $1 $3 }
-    | Exp '-' Exp { Op2 "+" $1 $3 }
+    | Exp '-' Exp { Op2 "-" $1 $3 }
     | Exp '*' Exp { Op2 "*" $1 $3 }
     | Exp '/' Exp { Op2 "/" $1 $3 }
     | Exp 'mod' Exp { Op2 "mod" $1 $3 }
@@ -137,22 +140,23 @@ BoolExp :: {BoolExp}
 
 Statements :: {[Statement]}
     : { [] } -- nothing; make empty list
-    | Statement Statements { $1:$2 } -- add statement to list
+    | Statement { [$1] }
+    | Statement ';' Statements { $1:$3 } -- add statement to list
 
 Statement :: {Statement}
-    : ID ':=' Exp ';' { AssignR $1 $3 }
-    | ID ':=' BoolExp ';' { AssignB $1 $3 }
-    | 'if' BoolExp 'then' Statement ';' { IfThen $2 $4 }
-    | 'if' BoolExp 'then' Statement 'else' Statement ';' { IfThenElse $2 $4 $6 }
-    | 'while' BoolExp 'do' 'begin' Statements 'end' ';' { WhileDo $2 $5 }
-    | 'for' ID ':=' float 'to' float 'do' 'begin' Statements 'end' ';' { ForDo $2 $4 $6 $9 }
-    | 'case' Exp 'of' CaseLabels 'end' ';' { Case $2 $4 } 
-    | 'function' ID VarDec 'begin' Statement 'end' ';' { Func "function" $2 [$3] "begin" $5 "end" }
-    | 'procedure' ID VarDec 'begin' Statement 'end' ';' { Proc "procedure" $2 [$3] "begin" $5 "end" }
+    : ID ':=' Exp { AssignR $1 $3 }
+    | ID ':=' BoolExp { AssignB $1 $3 }
+    | 'if' BoolExp 'then' Statement { IfThen $2 $4 }
+    | 'if' BoolExp 'then' Statement 'else' Statement { IfThenElse $2 $4 $6 }
+    | 'while' BoolExp 'do' 'begin' Statements 'end' { WhileDo $2 $5 }
+    | 'for' ID ':=' float 'to' float 'do' 'begin' Statements 'end' { ForDo $2 $4 $6 $9 }
+    | 'case' Exp 'of' CaseLabels 'end' { Case $2 $4 }
+    | 'function' ID VarDec 'begin' Statement 'end' { Func "function" $2 [$3] "begin" $5 "end" }
+    | 'procedure' ID VarDec 'begin' Statement 'end' { Proc "procedure" $2 [$3] "begin" $5 "end" }
 
 CaseLabels :: {[CaseLabel]}
-    : CaseLabel { [$1] }
-    | CaseLabel CaseLabels { $1:$2 }
+    : CaseLabel ';' { [$1] }
+    | CaseLabel ';' CaseLabels { $1:$3 }
 
 CaseLabel :: {CaseLabel}
     : Exp ':' Statement { CaseLabel $1 $3 }
