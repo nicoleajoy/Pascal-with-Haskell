@@ -16,6 +16,7 @@ import Pascal.Lexer
 %token
         float           { Token _ (TokenFloat $$) }
         ID              { Token _ (TokenID $$) }
+        string          { Token _ (TokenString $$ )}
         'true'          { Token _ (TokenBool true) }
         'false'         { Token _ (TokenBool false) }
         '+'             { Token _ (TokenOp "+") }
@@ -80,11 +81,11 @@ ProgramHeader :: {String}
 
 VarDecBlock :: {[VarDec]}
     : { [] } -- nothing; empty list
-    | 'var' VarDecs { $2 }
+    | 'var' VarDec_List { $2 }
 
-VarDecs :: {[VarDec]}
+VarDec_List :: {[VarDec]}
     : VarDec ';' { [$1] }
-    | VarDec ';' VarDecs { $1:$3 }
+    | VarDec ';' VarDec_List { $1:$3 }
 
 VarDec :: {VarDec}
     : ID_List ':' Type { VarDec $1 $3 }
@@ -96,14 +97,13 @@ ID_List :: {[String]}
     : ID { [$1] }
     | ID ',' ID_List { $1:$3 } 
 
-Block :: {[Statement]}
-    : 'begin' Statements 'end' '.' { $2 }
-
 Type :: {Type}
     : 'boolean' { BOOLEAN }
     | 'real' { REAL }
 
--- Expressions
+Block :: {[Statement]}
+    : 'begin' Statements 'end' '.' { $2 }
+
 Exp :: {Exp}
     : '+' Exp { $2 } -- ignore Plus
     | '-' Exp { Op1 "-" $2 } 
@@ -150,15 +150,28 @@ Statement :: {Statement}
     | 'if' BoolExp 'then' Statement 'else' Statement { IfThenElse $2 $4 $6 }
     | 'while' BoolExp 'do' 'begin' Statements 'end' { WhileDo $2 $5 }
     | 'for' ID ':=' float 'to' float 'do' 'begin' Statements 'end' { ForDo $2 $4 $6 $9 }
-    | 'case' Exp 'of' CaseLabels 'end' { Case $2 $4 }
+    | 'case' Exp 'of' CaseLabel_List 'end' { Case $2 $4 }
+    | 'writeln' '(' ')' { WriteNewLine }
+    | 'writeln' '(' WriteParam_List ')' { WriteInside $3 }
     | 'function' ID VarDec 'begin' Statement 'end' { Func "function" $2 [$3] "begin" $5 "end" }
     | 'procedure' ID VarDec 'begin' Statement 'end' { Proc "procedure" $2 [$3] "begin" $5 "end" }
 
-CaseLabels :: {[CaseLabel]}
+CaseLabel_List :: {[CaseLabel]}
     : CaseLabel ';' { [$1] }
-    | CaseLabel ';' CaseLabels { $1:$3 }
+    | CaseLabel ';' CaseLabel_List { $1:$3 }
 
 CaseLabel :: {CaseLabel}
     : Exp ':' Statement { CaseLabel $1 $3 }
+
+WriteParam_List :: {[WriteParam]}
+    : WriteParam { [$1] }
+    | WriteParam ',' WriteParam_List { $1:$3 }
+
+WriteParam :: {WriteParam}
+    : ID { PrintID $1 }
+    | 'true' { PrintTrue }
+    | 'false' { PrintFalse }
+    | float { PrintFloat $1 }
+    | string { PrintString $1 }
 
 {}

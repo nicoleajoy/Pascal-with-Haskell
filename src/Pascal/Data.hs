@@ -10,6 +10,7 @@ module Pascal.Data
         BoolExp(..),
         Statement(..),
         CaseLabel(..),
+        WriteParam(..),
         Program
     ) where
 
@@ -24,7 +25,6 @@ data VarDec =
 
 data Type = BOOLEAN | REAL
 
--- Data-structure for  numeric expressions
 data Exp = 
     -- unary operator: Op name expression
     Op1 String Exp
@@ -38,7 +38,6 @@ data Exp =
     -- variable: e.g. Var "x"
     | Var_R String
 
--- Data-structure for boolean expressions
 data BoolExp = 
     -- operator on boolean expressions
     OpB String BoolExp BoolExp
@@ -52,9 +51,7 @@ data BoolExp =
     -- variable: e.g. Var "x"
     | Var_B String
 
--- Data-structure for statements
 data Statement = 
-    -- Variable assignment
     AssignR String Exp
     | AssignB String BoolExp
     | IfThen BoolExp Statement
@@ -62,11 +59,20 @@ data Statement =
     | WhileDo BoolExp [Statement]
     | ForDo String Float Float [Statement]
     | Case Exp [CaseLabel]
+    | WriteNewLine
+    | WriteInside [WriteParam]
     | Func String String [VarDec] String Statement String
     | Proc String String [VarDec] String Statement String
 
 data CaseLabel = 
     CaseLabel Exp Statement
+
+data WriteParam = 
+    PrintID String
+    | PrintTrue
+    | PrintFalse
+    | PrintFloat Float
+    | PrintString String
 
 -- Data-structure for whole program
 -- TODO: add declarations and other useful stuff

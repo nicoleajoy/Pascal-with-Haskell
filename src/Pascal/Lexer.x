@@ -26,6 +26,7 @@ where
 
 import System.Exit
 import qualified Data.ByteString.Lazy.Char8 as B
+
 }
 
 %wrapper "monadUserState-bytestring"
@@ -33,14 +34,13 @@ import qualified Data.ByteString.Lazy.Char8 as B
 $digit = 0-9                    -- digits
 $alpha = [a-zA-Z]               -- alphabetic characters
 
-
 -- TODO: Map symbols into token types (with or without parameters)
 tokens :-
   $white+                               ; -- remove multiple white-spaces
   "//".*                                ; -- skip one line comments
   "{".*"}"                              ; -- skips bracket comments
   "(*".*"*)"                            ; -- skips parenthesis comments
-  $digit+ | $digit+ "." $digit+         { tok_read     TokenFloat }
+  $digit+|$digit+"."$digit+             { tok_read     TokenFloat }
   true|false                            { tok_read     TokenBool }
   [\+]|[\-]|[\*]|[\/]|"mod"             { tok_string   TokenOp }
   [\>]|">="|[\<]|"<="|[\=]|"<>"         { tok_string   TokenOp }
@@ -53,7 +53,8 @@ tokens :-
   writeln|readln                        { tok_string   TokenK }
   if|then|else                          { tok_string   TokenK }
   while|do|for|to|case|of               { tok_string   TokenK }
-  $alpha [$alpha $digit \_ \']*         { tok_string   TokenID }
+  $alpha[$alpha$digit\_\']*             { tok_string   TokenID }
+  "'".*"'"                              { tok_string   TokenString }
 
 {
 
@@ -70,7 +71,6 @@ data Token = Token AlexPosn TokenClass
 tokenToPosN :: Token -> AlexPosn
 tokenToPosN (Token p _) = p
 
-
 -- TODO: Add your own token types here
 data TokenClass
  = TokenOp              String
@@ -78,6 +78,7 @@ data TokenClass
  | TokenFloat           Float
  | TokenBool            Bool
  | TokenID              String
+ | TokenString          String
  | TokenEOF
  deriving (Eq, Show)
 
@@ -88,4 +89,5 @@ alexEOF = do
 
 type AlexUserState = ()
 alexInitUserState = ()
+
 }
