@@ -30,6 +30,8 @@ executable Pascal
                       , bytestring
                       , array
                       , hspec
+                      , containers
+                      , mtl
 
   hs-source-dirs:      src
   build-tools:         happy, alex
